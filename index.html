@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="zh-TW" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>我的應用程式傳送門</title>
+  <!-- 導入 Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- 導入 Lucide 圖示庫 -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    // Tailwind 自訂配置
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#f0f9ff',
+              100: '#e0f2fe',
+              500: '#0ea5e9',
+              600: '#0284c7',
+              700: '#0369a1',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    /* 微調漸變過渡效果 */
+    .transition-theme {
+      transition: background-color 0.3s ease, border-color 0.3s ease, text-color 0.3s ease;
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 dark:bg-slate-900 dark:text-slate-100 min-h-screen flex flex-col transition-theme">
+
+  <!-- 頂部導覽列 -->
+  <header class="border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur sticky top-0 z-40 transition-theme">
+    <div class="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
+      <div class="flex items-center gap-3">
+        <!-- 個人頭像（會在 JS 中動態載入） -->
+        <img id="header-avatar" src="" alt="Avatar" class="w-10 h-10 rounded-full border border-slate-200 dark:border-slate-700 object-cover">
+        <div>
+          <h1 id="header-title" class="font-bold text-lg leading-tight">個人首頁</h1>
+          <p id="header-subtitle" class="text-xs text-slate-500 dark:text-slate-400">載入中...</p>
+        </div>
+      </div>
+      
+      <!-- 右側按鈕：深色模式切換 -->
+      <button id="theme-toggle" class="p-2 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition-colors" title="切換主題">
+        <i data-lucide="sun" id="sun-icon" class="hidden"></i>
+        <i data-lucide="moon" id="moon-icon"></i>
+      </button>
+    </div>
+  </header>
+
+  <!-- 主視覺 & 介紹區 -->
+  <section class="max-w-6xl mx-auto px-4 pt-12 pb-8 w-full">
+    <div class="text-center max-w-2xl mx-auto mb-8">
+      <div class="inline-flex p-1 rounded-full bg-brand-50 dark:bg-brand-500/10 text-brand-600 dark:text-brand-500 mb-4">
+        <span class="px-3 py-1 text-xs font-semibold uppercase tracking-wider">HTML App Hub</span>
+      </div>
+      <h2 id="main-title" class="text-4xl font-extrabold tracking-tight mb-4 bg-gradient-to-r from-brand-600 to-indigo-500 bg-clip-text text-transparent">
+        載入中...
+      </h2>
+      <p id="main-desc" class="text-slate-600 dark:text-slate-400 text-lg">
+        載入中...
+      </p>
+    </div>
+
+    <!-- 搜尋與分類篩選工具列 -->
+    <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm border border-slate-200/60 dark:border-slate-700/60 mb-8 flex flex-col md:flex-row gap-4 items-center justify-between transition-theme">
+      <!-- 搜尋框 -->
+      <div class="relative w-full md:w-80">
+        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400 pointer-events-none">
+          <i data-lucide="search" class="w-5 h-5"></i>
+        </span>
+        <input type="text" id="search-input" placeholder="搜尋應用程式名稱或描述..." class="w-full pl-10 pr-4 py-2 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm transition-theme">
+      </div>
+
+      <!-- 分類按鈕 (由 JS 動態生成) -->
+      <div id="category-filters" class="flex flex-wrap gap-2 w-full md:w-auto justify-start md:justify-end">
+        <!-- 分類按鈕會插在這裡 -->
+      </div>
+    </div>
+
+    <!-- App 卡片網格區 -->
+    <div id="apps-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <!-- App 卡片會由 JS 動態渲染在此 -->
+    </div>
+
+    <!-- 查無結果的提示 -->
+    <div id="no-results" class="hidden text-center py-20">
+      <div class="inline-flex p-4 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-600 mb-4">
+        <i data-lucide="folder-search" class="w-12 h-12"></i>
+      </div>
+      <h3 class="text-lg font-bold">找不到相符的應用程式</h3>
+      <p class="text-slate-500 dark:text-slate-400 text-sm mt-1">請嘗試其他關鍵字或分類！</p>
+    </div>
+  </section>
+
+  <!-- 頁尾 -->
+  <footer class="mt-auto border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 py-8 transition-theme">
+    <div class="max-w-6xl mx-auto px-4 text-center">
+      <p class="text-sm text-slate-500 dark:text-slate-400" id="footer-text">
+        © 2026 我的應用程式傳送門. All rights reserved.
+      </p>
+      <p class="text-xs text-slate-400 dark:text-slate-500 mt-2">
+        由 Tailwind CSS & JavaScript 動態驅動
+      </p>
+    </div>
+  </footer>
+
+
+  <!-- ========================================== -->
+  <!--               核心設定區                    -->
+  <!-- ========================================== -->
+  <script>
+    /**
+     * 【您可以直接在這裡修改所有文字、網址與圖示！】
+     * * 1. 支援的 Lucide 圖示名稱 (例如): 
+     * "check-square" (打勾), "gamepad-2" (遊戲), "calculator" (計算機), 
+     * "music" (音樂), "settings" (設定), "globe" (地球), "book-open" (書本),
+     * "calendar" (日曆), "image" (圖片), "cloud" (雲端)
+     * 你可以到 https://lucide.dev/icons 查詢更多圖示名稱。
+     * * 2. 支援的顏色主題（適用於卡片的 hover 外框）：
+     * blue, green, purple, orange, red, pink, indigo, emerald
+     */
+    const CONFIG = {
+      // 網站基本資訊
+      siteName: "百思特",
+      siteSubtitle: "APP目錄頁面",
+      
+      // 個人資料
+      profile: {
+        name: "憨吉 ",
+        bio: "汪汪汪汪",
+        // 可以是網路圖片網址，或 local 的圖片路徑 (例如: "images/avatar.jpg")
+        avatar: "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/3d5ce6f676e94d52aa8fa33496d32e84~noop.jpeg?biz_tag=pcweb_cover&card_type=303&column_n=0&from=327834062&lk3s=138a59ce&s=PackSourceEnum_SEARCH&se=false&x-expires=1779897600&x-signature=XWj%2BiRE9GkbyQ%2B37Us%2F8to0JIlc%3D"
+      },
+
+      // 分類清單 (會自動顯示在篩選列上)
+      categories: ["全部", "工作生產力"],
+
+      // 所有的 App 連結
+      apps: [
+        {
+          title: "龍車退貨包裹清點系統",
+          description: "幫助你快速清點退貨包裹。",
+          url: "https://bestx0114-dev.github.io/rollcartcheck/", // 可以是本地的另一個 html，也可以是完整網址，如 https://...
+          icon: "check-square", 
+          category: "工作生產力",
+          color: "blue"
+        },
+        {
+          title: "009退貨包裹清點作業",
+          description: "拆009之前請通知印單人員。",
+          url: "https://bestx0114-dev.github.io/returns-scanner/",
+          icon: "package",
+          category: "工作生產力",
+          color: "green"
+        },
+        {
+          title: "預留欄位",
+          description: "預留欄位。",
+          url: "",
+          icon: "calculator",
+          category: "系統工具",
+          color: "purple"
+        },
+        {
+          title: "預留欄位",
+          description: "預留欄位。",
+          url: "pomodoro.html",
+          icon: "clock",
+          category: "工作生產力",
+          color: "red"
+        },
+        {
+          title: "預留欄位",
+          description: "預留欄位。",
+          url: "password-generator.html",
+          icon: "shield-alert",
+          category: "系統工具",
+          color: "orange"
+        },
+        {
+          title: "預留欄位",
+          description: "預留欄位",
+          url: "https://example.com",
+          icon: "globe",
+          category: "其他",
+          color: "indigo"
+        }
+      ]
+    };
+  </script>
+
+  <!-- ========================================== -->
+  <!--          網頁邏輯 (通常不需要修改)            -->
+  <!-- ========================================== -->
+  <script>
+    // 狀態管理
+    let currentCategory = "全部";
+    let searchQuery = "";
+
+    // DOM 節點
+    const headerAvatar = document.getElementById('header-avatar');
+    const headerTitle = document.getElementById('header-title');
+    const headerSubtitle = document.getElementById('header-subtitle');
+    const mainTitle = document.getElementById('main-title');
+    const mainDesc = document.getElementById('main-desc');
+    const footerText = document.getElementById('footer-text');
+    const categoryFiltersContainer = document.getElementById('category-filters');
+    const appsGrid = document.getElementById('apps-grid');
+    const noResults = document.getElementById('no-results');
+    const searchInput = document.getElementById('search-input');
+    const themeToggleBtn = document.getElementById('theme-toggle');
+    const sunIcon = document.getElementById('sun-icon');
+    const moonIcon = document.getElementById('moon-icon');
+
+    // 顏色對應表 (Tailwind Class 對應)
+    const colorClasses = {
+      blue: {
+        border: 'hover:border-blue-500/70 dark:hover:border-blue-500/50',
+        bg: 'bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-blue-400'
+      },
+      green: {
+        border: 'hover:border-emerald-500/70 dark:hover:border-emerald-500/50',
+        bg: 'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400'
+      },
+      purple: {
+        border: 'hover:border-purple-500/70 dark:hover:border-purple-500/50',
+        bg: 'bg-purple-50 text-purple-600 dark:bg-purple-500/10 dark:text-purple-400'
+      },
+      orange: {
+        border: 'hover:border-amber-500/70 dark:hover:border-amber-500/50',
+        bg: 'bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400'
+      },
+      red: {
+        border: 'hover:border-rose-500/70 dark:hover:border-rose-500/50',
+        bg: 'bg-rose-50 text-rose-600 dark:bg-rose-500/10 dark:text-rose-400'
+      },
+      indigo: {
+        border: 'hover:border-indigo-500/70 dark:hover:border-indigo-500/50',
+        bg: 'bg-indigo-50 text-indigo-600 dark:bg-indigo-500/10 dark:text-indigo-400'
+      },
+      pink: {
+        border: 'hover:border-pink-500/70 dark:hover:border-pink-500/50',
+        bg: 'bg-pink-50 text-pink-600 dark:bg-pink-500/10 dark:text-pink-400'
+      },
+      emerald: {
+        border: 'hover:border-emerald-500/70 dark:hover:border-emerald-500/50',
+        bg: 'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400'
+      }
+    };
+
+    // 初始化網頁資訊
+    function initInfo() {
+      headerAvatar.src = CONFIG.profile.avatar;
+      headerTitle.textContent = CONFIG.profile.name;
+      headerSubtitle.textContent = CONFIG.profile.bio;
+      mainTitle.textContent = CONFIG.siteName;
+      mainDesc.textContent = CONFIG.siteSubtitle;
+      footerText.innerHTML = `© ${new Date().getFullYear()} ${CONFIG.profile.name}. 所有連結皆可安全點擊。`;
+    }
+
+    // 初始化深淺色主題
+    function initTheme() {
+      const savedTheme = localStorage.getItem('theme');
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      
+      if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+        document.documentElement.classList.add('dark');
+        sunIcon.classList.remove('hidden');
+        moonIcon.classList.add('hidden');
+      } else {
+        document.documentElement.classList.remove('dark');
+        sunIcon.classList.add('hidden');
+        moonIcon.classList.remove('hidden');
+      }
+    }
+
+    // 主題切換按鈕事件
+    themeToggleBtn.addEventListener('click', () => {
+      const isDark = document.documentElement.classList.contains('dark');
+      if (isDark) {
+        document.documentElement.classList.remove('dark');
+        localStorage.setItem('theme', 'light');
+        sunIcon.classList.add('hidden');
+        moonIcon.classList.remove('hidden');
+      } else {
+        document.documentElement.classList.add('dark');
+        localStorage.setItem('theme', 'dark');
+        sunIcon.classList.remove('hidden');
+        moonIcon.classList.add('hidden');
+      }
+    });
+
+    // 渲染分類篩選按鈕
+    function renderCategories() {
+      categoryFiltersContainer.innerHTML = '';
+      CONFIG.categories.forEach(category => {
+        const button = document.createElement('button');
+        button.textContent = category;
+        button.className = 'px-4 py-2 text-sm font-medium rounded-xl transition-all duration-200 ';
+        
+        if (category === currentCategory) {
+          button.className += 'bg-brand-500 text-white shadow-sm shadow-brand-500/20';
+        } else {
+          button.className += 'bg-slate-50 dark:bg-slate-900/40 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700/60 border border-slate-200 dark:border-slate-800';
+        }
+
+        button.addEventListener('click', () => {
+          currentCategory = category;
+          renderCategories();
+          renderApps();
+        });
+
+        categoryFiltersContainer.appendChild(button);
+      });
+    }
+
+    // 渲染 App 清單
+    function renderApps() {
+      appsGrid.innerHTML = '';
+      
+      // 過濾條件
+      const filteredApps = CONFIG.apps.filter(app => {
+        const matchesCategory = currentCategory === "全部" || app.category === currentCategory;
+        const matchesSearch = app.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                              app.description.toLowerCase().includes(searchQuery.toLowerCase());
+        return matchesCategory && matchesSearch;
+      });
+
+      // 是否查無結果
+      if (filteredApps.length === 0) {
+        appsGrid.classList.add('hidden');
+        noResults.classList.remove('hidden');
+        return;
+      } else {
+        appsGrid.classList.remove('hidden');
+        noResults.classList.add('hidden');
+      }
+
+      // 渲染卡片
+      filteredApps.forEach(app => {
+        const colorConfig = colorClasses[app.color] || colorClasses.blue;
+        
+        const card = document.createElement('a');
+        card.href = app.url;
+        card.target = app.url.startsWith('http') ? '_blank' : '_self'; // 外部網址用新分頁開啟
+        card.className = `group flex flex-col justify-between p-6 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200/60 dark:border-slate-700/60 shadow-sm transition-all duration-300 transform hover:-translate-y-1 hover:shadow-md ${colorConfig.border}`;
+
+        card.innerHTML = `
+          <div>
+            <div class="flex items-start justify-between mb-4">
+              <!-- 圖示 -->
+              <div class="p-3 rounded-xl ${colorConfig.bg} transition-colors">
+                <i data-lucide="${app.icon || 'globe'}" class="w-6 h-6"></i>
+              </div>
+              <!-- 分類標籤 -->
+              <span class="text-xs px-2.5 py-1 rounded-full font-medium bg-slate-100 dark:bg-slate-700/50 text-slate-500 dark:text-slate-400">
+                ${app.category}
+              </span>
+            </div>
+            <!-- 標題與內文 -->
+            <h3 class="text-lg font-bold text-slate-800 dark:text-slate-100 group-hover:text-brand-500 dark:group-hover:text-brand-500 transition-colors flex items-center gap-1.5">
+              ${app.title}
+              <i data-lucide="arrow-up-right" class="w-4 h-4 opacity-0 group-hover:opacity-100 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all"></i>
+            </h3>
+            <p class="text-sm text-slate-500 dark:text-slate-400 mt-2 line-clamp-3 leading-relaxed">
+              ${app.description}
+            </p>
+          </div>
+          <!-- 底部進入連結樣式 -->
+          <div class="mt-6 flex items-center justify-end text-sm font-semibold text-brand-500 dark:text-brand-500 group-hover:underline">
+            開啟應用
+          </div>
+        `;
+
+        appsGrid.appendChild(card);
+      });
+
+      // 重新載入 Lucide SVG 圖示
+      lucide.createIcons();
+    }
+
+    // 搜尋監聽
+    searchInput.addEventListener('input', (e) => {
+      searchQuery = e.target.value;
+      renderApps();
+    });
+
+    // 初始化載入
+    window.onload = function () {
+      initTheme();
+      initInfo();
+      renderCategories();
+      renderApps();
+      lucide.createIcons();
+    };
+  </script>
+</body>
+</html>
