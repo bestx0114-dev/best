@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>百思特 APP</title>
+  <title>百思特 APP 智慧物流控制台</title>
   <!-- 導入 Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- 導入 Lucide 圖示庫 -->
@@ -120,7 +120,7 @@
       </p>
     </div>
 
-    <!-- 📊 快速數據儀表板 (已加上 ID 方便動態顯示或隱藏) -->
+    <!-- 📊 快速數據儀表板 -->
     <div id="stats-dashboard" class="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-5xl mx-auto mb-8 hidden">
       <div class="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200/60 dark:border-slate-800/80 shadow-sm flex items-center gap-3">
         <div class="p-2.5 rounded-xl bg-blue-50 text-blue-600 dark:bg-blue-950/50 dark:text-blue-400">
@@ -128,7 +128,7 @@
         </div>
         <div>
           <span class="text-xs text-slate-400 dark:text-slate-500 block">進貨工具</span>
-          <span id="stat-incoming" class="text-lg font-bold text-slate-800 dark:text-slate-200">-</span>
+          <span id="stat-incoming" class="text-lg font-bold text-slate-880 dark:text-slate-200">-</span>
         </div>
       </div>
       <div class="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200/60 dark:border-slate-800/80 shadow-sm flex items-center gap-3">
@@ -137,7 +137,7 @@
         </div>
         <div>
           <span class="text-xs text-slate-400 dark:text-slate-500 block">出貨工具</span>
-          <span id="stat-outgoing" class="text-lg font-bold text-slate-800 dark:text-slate-200">-</span>
+          <span id="stat-outgoing" class="text-lg font-bold text-slate-885 dark:text-slate-200">-</span>
         </div>
       </div>
       <div class="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200/60 dark:border-slate-800/80 shadow-sm flex items-center gap-3">
@@ -146,7 +146,7 @@
         </div>
         <div>
           <span class="text-xs text-slate-400 dark:text-slate-500 block">退貨工具</span>
-          <span id="stat-returns" class="text-lg font-bold text-slate-800 dark:text-slate-200">-</span>
+          <span id="stat-returns" class="text-lg font-bold text-slate-885 dark:text-slate-200">-</span>
         </div>
       </div>
       <div class="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200/60 dark:border-slate-800/80 shadow-sm flex items-center gap-3">
@@ -155,7 +155,7 @@
         </div>
         <div>
           <span class="text-xs text-slate-400 dark:text-slate-500 block">倉儲與系統</span>
-          <span id="stat-storage" class="text-lg font-bold text-slate-800 dark:text-slate-200">-</span>
+          <span id="stat-storage" class="text-lg font-bold text-slate-885 dark:text-slate-200">-</span>
         </div>
       </div>
     </div>
@@ -230,10 +230,20 @@
         avatar: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTTcPt6eCMw8GY1-sx8QBLHsPsCfDrpkwiMmw&s"
       },
 
-      // 分類清單 (固定依照流程排列)
+      // ────────────────────────────────────────────────────────
+      // 📌【順序調整專區】
+      // ────────────────────────────────────────────────────────
+      
+      // 1. 頂部篩選按鈕的左右順序（"全部" 固定在第一個，其餘您可以隨意對調前後）
       categories: ["全部", "進貨", "出貨", "退貨", "倉儲", "系統"],
 
-      // 定義各工作流程（分類）的標題、副標題與主題色彩，讓界面能做結構化區分！
+      // 2. 首頁在「全部」狀態下，下方各個「作業區看板」由上到下的高低順序
+      //    (您可以自由調整陣列中的字串順序，例如將 "退貨" 移到最前面)
+      flowOrder: [ "倉儲", "進貨", "退貨", "出貨","系統"],
+
+      // ────────────────────────────────────────────────────────
+
+      // 定義各工作流程（分類）的標題、副標題與主題色彩
       flowSettings: {
         "進貨": {
           title: "📥 進貨作業區 (Incoming Logistics)",
@@ -483,7 +493,6 @@
         if (category === "全部") {
           count = CONFIG.apps.length;
         } else if (category === "倉儲") {
-          // 為了對應上方儀表板邏輯，若為倉儲，將與系統合併或分開計算皆可（此處為各分類實算數）
           count = CONFIG.apps.filter(app => app.category === "倉儲").length;
         } else {
           count = CONFIG.apps.filter(app => app.category === category).length;
@@ -580,7 +589,7 @@
       card.style.setProperty('--mouse-y', `${y}px`);
     }
 
-    // 渲染 App 清單 (核心重寫：支援分區和單一 grid)
+    // 渲染 App 清單 (支援自訂順序)
     function renderApps() {
       appsContainer.innerHTML = '';
       
@@ -602,9 +611,10 @@
         noResults.classList.add('hidden');
       }
 
-      // 如果選擇「全部」且沒有搜尋字，則採用「工作流程（進/出/退/倉儲）大分區」進行排版！
+      // 如果選擇「全部」且沒有搜尋字，則採用「工作流程大分區」進行排版！
       if (currentCategory === "全部" && searchQuery === "") {
-        const categoriesInFlow = ["進貨", "出貨", "退貨", "倉儲", "系統"];
+        // ⭐ 改為讀取 CONFIG.flowOrder 設定的順序渲染大分區
+        const categoriesInFlow = CONFIG.flowOrder || ["進貨", "出貨", "退貨", "倉儲", "系統"];
         
         categoriesInFlow.forEach(flowName => {
           const flowApps = filteredApps.filter(app => app.category === flowName);
