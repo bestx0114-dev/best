@@ -142,16 +142,32 @@
       },
 
       // 分類清單 (會自動顯示在篩選列上)
-      categories: ["全部", "工作生產力"],
+      categories: ["全部","進貨","出貨","退貨","倉儲"],
 
       // 所有的 App 連結
       apps: [
         {
-          title: "龍車退貨包裹清點系統",
+          title: "條碼查詢",
+          description: "原條碼查詢APP。",
+          url: "https://www.appsheet.com/start/eb48b959-0ed7-4f7c-b5e3-63be48a3b440", // 可以是本地的另一個 html，也可以是完整網址，如 https://...
+          icon: "file-search-corner", 
+          category: "倉儲",
+          color: "blue"
+        },
+	{
+          title: "點貨APP",
+          description: "原點貨APP。",
+          url: "https://www.appsheet.com/start/6ba7ee62-7002-4666-b073-bf6cdee4d47b", // 可以是本地的另一個 html，也可以是完整網址，如 https://...
+          icon: "file-check", 
+          category: "進貨",
+          color: "blue"
+        },
+	{
+          title: "籠車退貨包裹清點系統",
           description: "幫助你快速清點退貨包裹。",
           url: "https://bestx0114-dev.github.io/rollcartcheck/", // 可以是本地的另一個 html，也可以是完整網址，如 https://...
           icon: "check-square", 
-          category: "工作生產力",
+          category: "退貨",
           color: "blue"
         },
         {
@@ -159,7 +175,7 @@
           description: "拆009之前請通知印單人員。",
           url: "https://bestx0114-dev.github.io/returns-scanner/",
           icon: "package",
-          category: "工作生產力",
+          category: "退貨",
           color: "green"
         },
         {
@@ -167,7 +183,7 @@
           description: "可以選擇自動或手動列印標籤。",
           url: "https://bestx0114-dev.github.io/label-print/",
           icon: "printer",
-          category: "系統工具",
+          category: "倉儲",
           color: "purple"
         },
         {
@@ -175,7 +191,7 @@
           description: "一次移除多個第二儲位。",
           url: "https://bestx0114-dev.github.io/second-storage-del/",
           icon: "notebook-pen",
-          category: "工作生產力",
+          category: "倉儲",
           color: "red"
         },
         {
